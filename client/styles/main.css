@@ -1,9 +1,9 @@
-.date-axis line, .date-axis path, .price-axis line, .price-axis path {
+.date-axis line, .date-axis path, .ordinal-axis line, .ordinal-axis path, .price-axis line, .price-axis path {
   fill: none;
   stroke: black;
 }
 
-.date-axis text, .price-axis text {
+.date-axis text, .ordinal-axis text, .price-axis text {
   font-size: 10px;
 }
 
