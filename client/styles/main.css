@@ -1,0 +1,13 @@
+.date-axis line, .date-axis path, .price-axis line, .price-axis path {
+  fill: none;
+  stroke: black;
+}
+
+.date-axis text, .price-axis text {
+  font-size: 10px;
+}
+
+.cross-hair {
+  fill: none;
+  stroke: steelblue;
+}
