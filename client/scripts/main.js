@@ -5,7 +5,7 @@ $(function () {
     var chartArea = d3.select('#chart').append('svg');
     
     var _candles;
-    var candleChart;
+    var chart;
     var barChart;
 
     $.ajax({

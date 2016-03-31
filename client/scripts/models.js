@@ -53,7 +53,9 @@ var DateChart = (function () {
         var self = this;
         this.svg.on('mousemove', function () {
             var _a = d3.mouse(this), xFocus = _a[0], yFocus = _a[1];
-            var focusedDate = self.dateScale.domain()[d3.bisect(self.dateScale.range(), xFocus)];
+            var focusedDate1 = self.dateScale.domain()[d3.bisect(self.dateScale.range(), xFocus)];
+            var focusedDate2 = self.dateScale.domain()[d3.bisect(self.dateScale.range(), xFocus) - 1];
+            var focusedDate = (self.dateScale(focusedDate1) - xFocus) < (xFocus - self.dateScale(focusedDate2)) ? focusedDate1 : focusedDate2;
             if(handler){
                 handler(focusedDate);
             }
