@@ -3,39 +3,53 @@ $(function () {
 
     $('body').append('<div id="chart"></div>');
     var chartArea = d3.select('#chart').append('svg');
+    
+    var _candles;
+    var candleChart;
+    var barChart;
 
     $.ajax({
         url: '/stockdata/BAJFINANCE',
         success: function (candles) {
             var candleList = new CandleList(candles);
-            candles = candles.slice(-180);
-            var candleChart = new CandleChart({
-                svg: chartArea,
-                width: 1350,
-                height: 300,
-                padding: { top: 0, right: 70, bottom: 0, left: 0 },
-                dateArray: candles.map(function (candle) { return candle.date; }),
-                minValue: d3.min(candles.map(function (candle) { return candle.low; })),
-                maxValue: d3.max(candles.map(function (candle) { return candle.high; }))
-            });
-            candleChart.plotAxes();
-            candleChart.plotCandles(candles);
-            candleChart.onCandleClick(function(date){
-                getStockQuotes(date).done(function(quotes){
-                    new BarChart({
-                        svg: chartArea,
-                        width: 400,
-                        height: 300,
-                        padding: { top: 0, right: 20, bottom: 30, left: 0 },
-                        data:quotes
-                    });
-                });
-            });
+            _candles = candles.slice(-180);
+            drawCandleChart();
         },
         error: function (error) {
             console.log(error);
         }
     });
+    
+    var drawCandleChart = function(){
+        candleChart = new CandleChart({
+            svg: chartArea,
+            width: 1350,
+            height: 300,
+            padding: { top: 0, right: 70, bottom: 0, left: 0 },
+            dateArray: _candles.map(function (candle) { return candle.date; }),
+            minValue: d3.min(_candles.map(function (candle) { return candle.low; })),
+            maxValue: d3.max(_candles.map(function (candle) { return candle.high; }))
+        });
+        candleChart.plotAxes();
+        candleChart.plotCandles(_candles);
+        candleChart.onCandleClick(function(date){
+            getStockQuotes(date).done(function(quotes){
+                candleChart.destroy();
+                barChart = new BarChart({
+                    svg: chartArea,
+                    width: 400,
+                    height: 300,
+                    padding: { top: 0, right: 20, bottom: 30, left: 0 },
+                    data:quotes,
+                    text:date
+                });
+                barChart.onBackClick(function(){
+                    barChart.destroy();
+                    drawCandleChart();
+                });
+            });
+        });
+    };
     
     var getStockQuotes = function(date){
         var deferred = $.Deferred(); 

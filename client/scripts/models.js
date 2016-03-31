@@ -32,6 +32,7 @@ var CandleChart = (function () {
             var clickedLocation = d3.mouse(this);
             var clickedDate = self.dateScale.domain()[d3.bisect(self.dateScale.range(),clickedLocation[0])]; 
             handler(clickedDate);
+            d3.event.stopPropagation();
         });
     }
     CandleChart.prototype.trackMouseMovement = function (svg) {
@@ -59,6 +60,11 @@ var CandleChart = (function () {
         plotDateAxis({ svg: svg, dateScale: dateScale });
         plotValueAxis({ svg: svg, valueScale: valueScale, translate: translate });
     };
+    CandleChart.prototype.destroy = function(){
+        this.svg.selectAll('*').remove();
+        this.svg.on('click',null);
+        this.svg.on('mousemove',null);
+    };
     CandleChart.xBuffer = 10;
     return CandleChart;
 })();
@@ -68,7 +74,7 @@ var CandleChart = (function () {
 var BarChart = (function () {
     function BarChart(_a) {
 
-        var svg = _a.svg, width = _a.width, height = _a.height, padding = _a.padding, data = _a.data;
+        var svg = _a.svg, width = _a.width, height = _a.height, padding = _a.padding, data = _a.data, text = _a.text;
         this.svg = svg;
         this.width = width;
         this.height = height;
@@ -85,9 +91,7 @@ var BarChart = (function () {
 
         var ordinalScale = d3.scale.ordinal()
             .domain(data.map(function(datum){return datum.name}))
-            .rangeBands([padding.left,width-padding.right],0.5);
-            
-        svg.selectAll('*').remove();
+            .rangeBands([padding.left,width-padding.right],0.5);    
             
         var ordinalAxis = d3.svg.axis().scale(ordinalScale)
         
@@ -105,6 +109,25 @@ var BarChart = (function () {
             .attr('transform', 'translate(' + (width-50) + ',0)')
             .call(valueAxis);
             
+        this.button = svg.append('rect')
+            .attr('class','button')
+            .attr('x',0)
+            .attr('y',20)
+            .attr('width',60)
+            .attr('height',30)
+            .attr('stroke','black')
+            .attr('fill','white')
+
+        this.buttonText = svg.append('text')
+                .attr('x',10)
+                .attr('y',40)
+                .text('Back');
+                
+        svg.append('text')
+            .attr('x',10)
+            .attr('y',80)
+            .text(text);
+            
         var barSet = svg.selectAll('.bar').data(data);
         barSet.exit().remove();
         barSet.enter().append('rect').attr('class','bar')
@@ -116,5 +139,20 @@ var BarChart = (function () {
             .attr('fill','blue');
 
     }
+    BarChart.prototype.onBackClick = function(handler){
+        this.button.on('click',function(){
+            handler();
+            d3.event.stopPropagation();
+        });
+        this.buttonText.on('click',function(){
+            handler();
+            d3.event.stopPropagation();
+        });
+    };
+    BarChart.prototype.destroy = function(){
+        this.svg.selectAll('*').remove();
+        this.button.on('click',null);
+        this.buttonText.on('click',null);
+    };
     return BarChart;
 })();
