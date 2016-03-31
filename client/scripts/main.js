@@ -48,22 +48,10 @@ $(function () {
                 date:date
             },
             success:function(data){
-                quotes.push({
+                quotes[0] = {
                     name:'BAJFINANCE',
                     value:data[0].close
-                });
-            }
-        });
-        var indexPromise = $.ajax({
-            url:'/quote/NIFTY_50',
-            data:{
-                date:date
-            },
-            success:function(data){
-                quotes.push({
-                    name:'NIFTY50',
-                    value:data[0].close
-                });
+                };
             }
         });
         var sectorIndexPromise = $.ajax({
@@ -72,10 +60,22 @@ $(function () {
                 date:date
             },
             success:function(data){
-                quotes.push({
+                quotes[1] = {
                     name:'BANKNIFTY',
                     value:data[0].close
-                });
+                };
+            }
+        });
+        var indexPromise = $.ajax({
+            url:'/quote/NIFTY_50',
+            data:{
+                date:date
+            },
+            success:function(data){
+                quotes[2] = {
+                    name:'NIFTY50',
+                    value:data[0].close
+                };
             }
         });
         $.when(stockPromise,indexPromise,sectorIndexPromise).done(function(){
