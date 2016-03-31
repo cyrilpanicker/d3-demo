@@ -21,20 +21,43 @@ $(function () {
     });
     
     var drawCandleChart = function(){
-        candleChart = new CandleChart({
+        chart = new DateChart({
             svg: chartArea,
             width: 1350,
-            height: 300,
-            padding: { top: 0, right: 70, bottom: 0, left: 0 },
+            height: 430,
+            padding: { top: 20, right: 70, bottom: 20, left: 0 },
             dateArray: _candles.map(function (candle) { return candle.date; }),
-            minValue: d3.min(_candles.map(function (candle) { return candle.low; })),
-            maxValue: d3.max(_candles.map(function (candle) { return candle.high; }))
+            slabs:[{
+                height: 300,
+                minValue: d3.min(_candles.map(function (candle) { return candle.low; })),
+                maxValue: d3.max(_candles.map(function (candle) { return candle.high; }))
+            },{
+                height: 120,
+                minValue: d3.min(_candles.map(function (candle) { return candle.volume; })),
+                maxValue: d3.max(_candles.map(function (candle) { return candle.volume; }))
+            }]
         });
-        candleChart.plotAxes();
-        candleChart.plotCandles(_candles);
-        candleChart.onCandleClick(function(date){
+        chart.plotDateAxis();
+        chart.plotValueAxis(0,10);
+        chart.plotValueAxis(1,5);
+        chart.plotCandles(_candles,0);
+        chart.plotBars(_candles.map(function(candle){return {date:candle.date,value:candle.volume}}),1);
+        chart.plotCrossHair();
+        chart.onMouseMove(function(date){
+            var candle = _candles.filter(function(candle){return candle.date == date})[0];
+            if(candle){
+                var text = 'DATE : '+date;
+                text += ', OPEN : '+candle.open; 
+                text += ', HIGH : '+candle.high;
+                text += ', LOW : '+candle.low;
+                text += ', CLOSE : '+candle.close;
+                text += ', VOLUME : '+candle.volume;
+                chart.text(text);
+            }
+        });
+        chart.onCandleClick(function(date){
             getStockQuotes(date).done(function(quotes){
-                candleChart.destroy();
+                chart.destroy();
                 barChart = new BarChart({
                     svg: chartArea,
                     width: 400,

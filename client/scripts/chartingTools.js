@@ -19,26 +19,27 @@ var plotCandles = function (_a) {
         .attr('width', function (_) { return candleWidth; })
         .attr('height', function (candle) { return ((valueScale(d3.min([candle.open, candle.close])) - valueScale(d3.max([candle.open, candle.close]))) || 0.01); })
         .attr('stroke', 'black')
-        .attr('fill', function (candle) { return candle.open > candle.close ? 'black' : 'white'; });
+        .attr('fill', function (candle) { return candle.open > candle.close ? 'blue' : 'white'; });
 };
 
 var plotDateAxis = function (_a) {
-    var svg = _a.svg, dateScale = _a.dateScale;
+    var svg = _a.svg, dateScale = _a.dateScale, translate = _a.translate;
     var dateAxis = d3.svg.axis()
         .scale(dateScale)
         .tickValues(dateScale.domain().filter(function (_, index, array) { return !(index % 5) || index == array.length - 1; }))
         .tickFormat(function (dateString) { return moment(dateString).format('M/D'); });
     svg.append('g')
         .attr('class', 'date-axis')
+        .attr('transform', 'translate(0,'+translate+')')
         .call(dateAxis);
 };
 
 var plotValueAxis = function (_a) {
-    var svg = _a.svg, valueScale = _a.valueScale, translate = _a.translate;
+    var svg = _a.svg, valueScale = _a.valueScale, translate = _a.translate, ticks = _a.ticks;
     var valueAxis = d3.svg.axis()
         .scale(valueScale)
         .orient('right')
-        .ticks(10);
+        .ticks(ticks);
     svg.append('g')
         .attr('class', 'price-axis')
         .attr('transform', 'translate(' + translate + ',0)')
