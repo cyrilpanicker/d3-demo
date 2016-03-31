@@ -58,6 +58,7 @@ $(function () {
         chart.plotLine(smaClose21,'blue',0);
         chart.plotLine(smaClose55,'yellow',0);
         chart.plotLine(smaVolume8,'red',1);
+        // chart.plotSeparator(0);
         chart.plotCrossHair();
         chart.onMouseMove(function(date){
             var candle = _candles.filter(function(candle){return candle.date == date})[0];

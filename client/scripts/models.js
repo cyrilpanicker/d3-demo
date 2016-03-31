@@ -130,6 +130,14 @@ var DateChart = (function () {
         var translate = this.padding.left + this.chartWidth;
         plotValueAxis({ svg: svg, valueScale: valueScale, translate: translate, ticks:ticks });
     };
+    DateChart.prototype.plotSeparator = function(slab){
+        this.svg.append('line')
+            .attr('x1',this.padding.left)
+            .attr('x2',this.padding.left+this.chartWidth)
+            .attr('y1',this.slabs[slab].height)
+            .attr('y2',this.slabs[slab].height)
+            .attr('stroke','black');
+    };
     DateChart.prototype.destroy = function(){
         this.svg.selectAll('*').remove();
         this.svg.on('click',null);
