@@ -1,10 +1,8 @@
 
 $(function () {
 
-    $('body').append('<div id="candle-chart"></div>');
-    $('body').append('<div id="bar-chart"></div>');
-    
-    var barChartArea = d3.select('#bar-chart').append('svg');
+    $('body').append('<div id="chart"></div>');
+    var chartArea = d3.select('#chart').append('svg');
 
     $.ajax({
         url: '/stockdata/BAJFINANCE',
@@ -12,7 +10,7 @@ $(function () {
             var candleList = new CandleList(candles);
             candles = candles.slice(-180);
             var candleChart = new CandleChart({
-                svg: d3.select('#candle-chart').append('svg'),
+                svg: chartArea,
                 width: 1350,
                 height: 300,
                 padding: { top: 0, right: 70, bottom: 0, left: 0 },
@@ -25,7 +23,7 @@ $(function () {
             candleChart.onCandleClick(function(date){
                 getStockQuotes(date).done(function(quotes){
                     new BarChart({
-                        svg: barChartArea,
+                        svg: chartArea,
                         width: 400,
                         height: 300,
                         padding: { top: 0, right: 20, bottom: 30, left: 0 },
