@@ -45,3 +45,22 @@ var plotValueAxis = function (_a) {
         .attr('transform', 'translate(' + translate + ',0)')
         .call(valueAxis);
 };
+
+var plotLine = function (_a) {
+    var svg = _a.svg, data = _a.data, color = _a.color, valueScale = _a.valueScale, dateScale = _a.dateScale;
+    var pathGenerator = d3.svg.line().interpolate('linear');
+    var pathMapper = function () {
+        var coOrdinatesArray = data.map(function (datum) {
+            var coOrdinates = [0, 0];
+            coOrdinates[0] = dateScale(datum.date);
+            coOrdinates[1] = valueScale(datum.value);
+            return coOrdinates;
+        });
+        return pathGenerator(coOrdinatesArray);
+    };
+    svg.append('path')
+        .attr('stroke', color)
+        .attr('fill', 'none')
+        .attr('d', pathMapper);
+};
+

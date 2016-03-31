@@ -1,17 +1,29 @@
-
 $(function () {
 
     $('body').append('<div id="chart"></div>');
     var chartArea = d3.select('#chart').append('svg');
     
     var _candles;
+    var smaClose8;
+    var smaClose21;
+    var smaClose55;
+    var smaVolume8;
     var chart;
     var barChart;
+    var quoteModal = d3.select('#quote-modal');
 
     $.ajax({
         url: '/stockdata/BAJFINANCE',
         success: function (candles) {
             var candleList = new CandleList(candles);
+            smaClose8 = candleList.getSMA(8,'close');
+            smaClose21 = candleList.getSMA(21,'close');
+            smaClose55 = candleList.getSMA(55,'close');
+            smaVolume8 = candleList.getSMA(8,'volume');
+            smaClose8 = smaClose8.slice(-180);
+            smaClose21 = smaClose21.slice(-180);
+            smaClose55 = smaClose55.slice(-180);
+            smaVolume8 = smaVolume8.slice(-180);
             _candles = candles.slice(-180);
             drawCandleChart();
         },
@@ -42,6 +54,10 @@ $(function () {
         chart.plotValueAxis(1,5);
         chart.plotCandles(_candles,0);
         chart.plotBars(_candles.map(function(candle){return {date:candle.date,value:candle.volume}}),1);
+        chart.plotLine(smaClose8,'red',0);
+        chart.plotLine(smaClose21,'blue',0);
+        chart.plotLine(smaClose55,'yellow',0);
+        chart.plotLine(smaVolume8,'red',1);
         chart.plotCrossHair();
         chart.onMouseMove(function(date){
             var candle = _candles.filter(function(candle){return candle.date == date})[0];
@@ -55,9 +71,13 @@ $(function () {
                 chart.text(text);
             }
         });
-        chart.onCandleClick(function(date){
+        chart.onClick(function(date){
+            quoteModal.select('*').remove();
+            quoteModal.append('img').attr('src','images/spinner.gif');
+            $('#quote-modal').modal();
             getStockQuotes(date).done(function(quotes){
-                chart.destroy();
+                quoteModal.select('*').remove();
+                var chartArea = quoteModal.append('svg');
                 barChart = new BarChart({
                     svg: chartArea,
                     width: 400,
@@ -65,10 +85,6 @@ $(function () {
                     padding: { top: 0, right: 20, bottom: 30, left: 0 },
                     data:quotes,
                     text:date
-                });
-                barChart.onBackClick(function(){
-                    barChart.destroy();
-                    drawCandleChart();
                 });
             });
         });

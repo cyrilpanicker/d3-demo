@@ -1,3 +1,19 @@
+var getAverage = function (data) {
+    return data.reduce(function (last, current) { return last + current; }) / data.length;
+};
+
+var getSMA = function (data, valueProperty, period) {
+    var SMA = [];
+    data.forEach(function (datum, index) {
+        if (index >= period - 1) {
+            var SMANode = {};
+            SMANode.date = datum.date;
+            SMANode.value = getAverage(data.slice(index + 1 - period, index + 1).map(function (datum) { return datum[valueProperty]; }));
+            SMA.push(SMANode);
+        }
+    });
+    return SMA;
+};
 
 var CandleList = (function () {
     function CandleList(data) {
@@ -5,6 +21,9 @@ var CandleList = (function () {
     }
     CandleList.prototype.toArray = function () {
         return this.data;
+    };
+    CandleList.prototype.getSMA = function (period, valueProperty) {
+        return getSMA(this.data, valueProperty, period);
     };
     return CandleList;
 })();
@@ -31,11 +50,13 @@ var DateChart = (function () {
         this.dateScale = d3.scale.ordinal().domain(dateArray).rangePoints([DateChart.xBuffer + padding.left, width - DateChart.xBuffer - padding.right]);
         this.crossHairPlotted = false;
     }
-    DateChart.prototype.onCandleClick = function (handler) {
+    DateChart.prototype.onClick = function (handler) {
         var self = this;
         this.svg.on('click',function(){
-            var clickedLocation = d3.mouse(this);
-            var clickedDate = self.dateScale.domain()[d3.bisect(self.dateScale.range(),clickedLocation[0])]; 
+            var clickedLocation = d3.mouse(this)[0];
+            var clickedDate1 = self.dateScale.domain()[d3.bisect(self.dateScale.range(),clickedLocation)];
+            var clickedDate2 = self.dateScale.domain()[d3.bisect(self.dateScale.range(),clickedLocation) - 1];
+            var clickedDate = (self.dateScale(clickedDate1) - clickedLocation) < (clickedLocation - self.dateScale(clickedDate2)) ? clickedDate1 : clickedDate2;
             handler(clickedDate);
             d3.event.stopPropagation();
         });
@@ -69,6 +90,10 @@ var DateChart = (function () {
                     .attr('y1', yFocus).attr('y2', yFocus);
             }
         });
+    };
+    DateChart.prototype.plotLine = function (data, color, slab) {
+        var _a = this, svg = _a.svg, dateScale = _a.dateScale, valueScale = _a.valueScales[slab];
+        plotLine({ color: color, data: data, dateScale: dateScale, valueScale: valueScale, svg: svg });
     };
     DateChart.prototype.plotCandles = function (candles,slab) {
         var _a = this, svg = _a.svg, dateScale = _a.dateScale, valueScale = _a.valueScales[slab], chartWidth = _a.chartWidth;
@@ -161,20 +186,6 @@ var BarChart = (function () {
             .attr('class', 'price-axis')
             .attr('transform', 'translate(' + (width-50) + ',0)')
             .call(valueAxis);
-            
-        this.button = svg.append('rect')
-            .attr('class','button')
-            .attr('x',0)
-            .attr('y',20)
-            .attr('width',60)
-            .attr('height',30)
-            .attr('stroke','black')
-            .attr('fill','white')
-
-        this.buttonText = svg.append('text')
-                .attr('x',10)
-                .attr('y',40)
-                .text('Back');
                 
         svg.append('text')
             .attr('x',10)
@@ -192,20 +203,5 @@ var BarChart = (function () {
             .attr('fill','blue');
 
     }
-    BarChart.prototype.onBackClick = function(handler){
-        this.button.on('click',function(){
-            handler();
-            d3.event.stopPropagation();
-        });
-        this.buttonText.on('click',function(){
-            handler();
-            d3.event.stopPropagation();
-        });
-    };
-    BarChart.prototype.destroy = function(){
-        this.svg.selectAll('*').remove();
-        this.button.on('click',null);
-        this.buttonText.on('click',null);
-    };
     return BarChart;
 })();
