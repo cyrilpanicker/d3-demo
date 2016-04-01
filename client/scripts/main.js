@@ -49,16 +49,32 @@ $(function () {
                 maxValue: d3.max(_candles.map(function (candle) { return candle.volume; }))
             }]
         });
-        chart.plotDateAxis();
-        chart.plotValueAxis(0,10);
-        chart.plotValueAxis(1,5);
-        chart.plotCandles(_candles,0);
-        chart.plotBars(_candles.map(function(candle){return {date:candle.date,value:candle.volume}}),1);
+
+        
         chart.plotLine(smaClose8,'red',0);
         chart.plotLine(smaClose21,'blue',0);
         chart.plotLine(smaClose55,'yellow',0);
         chart.plotLine(smaVolume8,'red',1);
         // chart.plotSeparator(0);
+        var dates = _candles.map(function(candle){return candle.date});
+        var months = [];
+        var gridDates = [];
+        
+        for(var i=0;i<dates.length;i++){
+            var month = new Date(dates[i]).getMonth();
+            if(months.indexOf(month) == -1){
+                months.push(month);
+                gridDates.push(dates[i]);
+            }
+        }
+
+        chart.plotVerticalGrids(gridDates)
+        chart.plotHorizontalGrids(0,5,'price');
+        chart.plotDateAxis();
+        chart.plotValueAxis(0,5);
+        chart.plotValueAxis(1,3);
+        chart.plotCandles(_candles,0);
+        chart.plotBars(_candles.map(function(candle){return {date:candle.date,value:candle.volume}}),1);
         chart.plotCrossHair();
         chart.onMouseMove(function(date){
             var candle = _candles.filter(function(candle){return candle.date == date})[0];

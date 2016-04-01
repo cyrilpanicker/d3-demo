@@ -151,6 +151,31 @@ var DateChart = (function () {
             .attr('y',20)
             .text(text);
     };
+    DateChart.prototype.plotVerticalGrids = function(dates){
+        var dateScale = this.dateScale;
+        var grids = this.svg.selectAll('.vertical-grid-line').data(dates);
+        grids.exit().remove();
+        grids.enter().append('line').attr('class','vertical-grid-line')
+        grids
+            .attr('x1',function(date){return dateScale(date);})
+            .attr('y1',0)
+            .attr('x2',function(date){return dateScale(date);})
+            .attr('y2',this.height)
+            .attr('stroke','#F6C9BF');
+    };
+    DateChart.prototype.plotHorizontalGrids = function(slab,ticks,className){
+        var valueScale = this.valueScales[slab];
+        var values = valueScale.ticks(ticks);
+        var grids = this.svg.selectAll('.horizontal-grid-line-'+className).data(values);
+        grids.exit().remove();
+        grids.enter().append('line').attr('class','horizontal-grid-line-'+className)
+        grids
+            .attr('x1',0)
+            .attr('y1',function(value){return valueScale(value);})
+            .attr('x2',this.width)
+            .attr('y2',function(value){return valueScale(value);})
+            .attr('stroke','#F6C9BF');
+    };
     DateChart.xBuffer = 10;
     return DateChart;
 })();
